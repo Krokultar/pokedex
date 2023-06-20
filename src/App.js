@@ -6,6 +6,8 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [validResponse, setValidResponse] = useState(false);
     const [body, setBody] = useState('');
+    const [statName, setStatName] = useState([]);
+    const [statValue, setStatValue] = useState([]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -26,32 +28,22 @@ function App() {
                 const body = await res.json();
                 setBody(body);
                 console.log(body);
+                const pruebaLng = await body.stats.map(async (stat) => {
+                    const prueba = await fetch(stat.stat.url);
+                    const bodyPrueba = await prueba.json();
+                    console.log('bodyPrueba', bodyPrueba);
+                    return bodyPrueba.names.filter(
+                        (a) => a.language.name === 'es'
+                    )[0].name;
+                });
+                console.log(pruebaLng);
+                console.log('statName', pruebaLng[0]);
             }
         } catch (error) {
             console.log('error', error);
         } finally {
             setLoading(false);
         }
-        /* try {
-            const res = await fetch(
-                `https://pokeapi.co/api/v2/pokemon-species/80`
-            );
-            console.log(res);
-            const body = await res.json();
-            console.log('species', body);
-        } catch (error) {
-            console.log(error);
-        }
-        try {
-            const res = await fetch(
-                `https://pokeapi.co/api/v2/evolution-chain/33`
-            );
-            console.log(res);
-            const body = await res.json();
-            console.log('evo-chain', body);
-        } catch (error) {
-            console.log(error);
-        } */
     };
     return (
         <div className="App">
@@ -77,7 +69,11 @@ function App() {
                         {body?.stats?.map((stat) => {
                             const statName = stat.stat.name;
                             const statValue = stat.base_stat;
-                            return <li>{`${statName}: ${statValue}`}</li>;
+                            return (
+                                <li
+                                    key={statName}
+                                >{`${statName}: ${statValue}`}</li>
+                            );
                         })}
                     </ul>
                 </div>
